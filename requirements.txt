@@ -2,3 +2,8 @@ Flask>=3.0,<4.0
 Flask-Cors>=4.0,<6.0
 Flask-SQLAlchemy>=3.1,<4.0
 json5>=0.9,<1.0
+Flask
+Flask-CORS
+Flask-SQLAlchemy
+gunicorn
+Werkzeug
