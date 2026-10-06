@@ -388,3 +388,58 @@ h1, h2 { margin: 0; font-family: "Space Grotesk", sans-serif; letter-spacing: 0;
 	.answer-list { grid-template-columns: 1fr; gap: 8px; margin-top: 20px; }
 	.quiz-answer { min-height: 52px; }
 }
+
+.leaderboard-page { min-height: calc(100vh - 164px); background: radial-gradient(ellipse at 50% 0%, #d9f26a2a, transparent 34%), var(--paper); }
+.leaderboard-wrap { width: min(1000px, calc(100% - 64px)); margin-inline: auto; padding-block: 68px 84px; }
+.leaderboard-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 25px; }
+.leaderboard-heading .eyebrow { margin-bottom: 12px; }
+.leaderboard-heading h1 { font-size: 3.8rem; }
+.leaderboard-heading > div > p:last-child { margin: 12px 0 0; color: var(--muted); font-size: .87rem; line-height: 1.6; }
+.refresh-button { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 4px; color: var(--teal); background: #fff; font-size: 1.35rem; transition: transform .25s, border-color .2s; }
+.refresh-button:hover { border-color: var(--teal); transform: rotate(35deg); }
+.podium-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; gap: 14px; max-width: 730px; margin: 42px auto 48px; }
+.podium-card { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 0; padding: 21px 14px 19px; border: 1px solid #dfe6e0; border-radius: 5px 5px 2px 2px; background: #fff; text-align: center; }
+.podium-card.rank-1 { min-height: 224px; border-color: #d7c478; background: linear-gradient(180deg, #fffbea, #fff 72%); }
+.podium-card.rank-2 { min-height: 185px; }
+.podium-card.rank-3 { min-height: 168px; }
+.podium-medal { display: grid; place-items: center; width: 39px; height: 39px; margin-bottom: 13px; border-radius: 50%; font: 700 .82rem "Space Grotesk", sans-serif; }
+.rank-1 .podium-medal { color: #745410; background: #f3dc8d; box-shadow: 0 0 0 5px #f8ecc2; }
+.rank-2 .podium-medal { color: #58646a; background: #dce4e7; box-shadow: 0 0 0 5px #edf1f2; }
+.rank-3 .podium-medal { color: #87462f; background: #edc2a9; box-shadow: 0 0 0 5px #f7e4d8; }
+.podium-name { max-width: 100%; overflow-wrap: anywhere; font: 600 .94rem "Space Grotesk", sans-serif; }
+.podium-rounds { margin-top: 7px; color: var(--muted); font-size: .63rem; }
+.podium-score { margin-top: 12px; color: var(--teal-dark); font: 700 1.3rem "Space Grotesk", sans-serif; }
+.podium-place { margin-top: 3px; color: #9ba5a0; font-size: .55rem; font-weight: 700; letter-spacing: .1em; }
+.ranking-panel { overflow: hidden; border: 1px solid #dfe6e0; border-radius: 5px; background: #fff; box-shadow: 0 16px 42px #142d2709; }
+.ranking-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; padding: 24px 25px 18px; }
+.ranking-heading .eyebrow { margin-bottom: 8px; }
+.ranking-heading h2 { font-size: 1.5rem; }
+.ranking-heading > span { color: var(--teal); font-size: .57rem; font-weight: 700; letter-spacing: .1em; }
+.ranking-table-wrap { overflow-x: auto; }
+.ranking-table { width: 100%; border-collapse: collapse; text-align: left; }
+.ranking-table th { padding: 12px 20px; color: #7c8985; background: #f5f7f3; font-size: .59rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+.ranking-table td { padding: 15px 20px; border-top: 1px solid #edf0ec; color: var(--ink-soft); font-size: .75rem; }
+.ranking-table td:first-child { width: 75px; color: var(--teal-dark); font: 700 .8rem "Space Grotesk", sans-serif; }
+.ranking-table td:nth-child(3), .ranking-table td:nth-child(4) { font-variant-numeric: tabular-nums; }
+.ranking-table tbody tr:hover { background: #fbfcfa; }
+.ranking-table tbody tr.empty-row td { padding-block: 26px; color: var(--muted); text-align: center; }
+.leaderboard-feedback { min-height: 18px; margin: 0; padding: 0 25px 16px; color: #a34f3c; font-size: .68rem; }
+@media (max-width: 760px) {
+	.leaderboard-wrap { width: min(100% - 40px, 620px); padding-block: 46px 60px; }
+	.leaderboard-heading h1 { font-size: 3.1rem; }
+	.podium-grid { gap: 8px; margin-block: 32px 35px; }
+	.podium-card { padding-inline: 9px; }
+	.ranking-heading { padding-inline: 18px; }
+	.ranking-table th, .ranking-table td { padding-inline: 14px; }
+}
+@media (max-width: 520px) {
+	.leaderboard-heading h1 { max-width: 290px; font-size: 2.6rem; }
+	.podium-grid { gap: 6px; }
+	.podium-card { padding: 15px 6px; }
+	.podium-card.rank-1 { min-height: 203px; }
+	.podium-card.rank-2 { min-height: 172px; }
+	.podium-card.rank-3 { min-height: 158px; }
+	.podium-name { font-size: .76rem; }
+	.podium-rounds { font-size: .56rem; }
+	.ranking-table { min-width: 530px; }
+}

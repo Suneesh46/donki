@@ -22,7 +22,7 @@
 				<a class="nav-link active" href="#home" data-home-link>Home</a>
 				<a class="nav-link" href="#about">About</a>
 				<a class="nav-link" href="#contact">Contact</a>
-				<a class="nav-link" href="#leaderboard">Leaderboard</a>
+				<a class="nav-link" href="#toppers" data-toppers-link>Toppers</a>
 			</nav>
 			<button class="account-button" id="accountButton" type="button">Sign in <span aria-hidden="true">&#8599;</span></button>
 		</div>
@@ -81,7 +81,7 @@
 				</div>
 			</section>
 
-			<section class="community-section" id="leaderboard">
+			<section class="community-section" id="community">
 				<div class="community-inner section-wrap">
 					<div><p class="eyebrow">THE COMMUNITY</p><h2>Every expert<br>starts somewhere.</h2></div>
 					<div class="community-note"><span class="community-star" aria-hidden="true">&#9733;</span><p>Your learning journey is yours to shape. Sign in to start building a streak and take your place on the leaderboard.</p><button class="inline-button" type="button" data-open-auth="register">Start learning <span aria-hidden="true">&#8594;</span></button></div>
@@ -112,23 +112,38 @@
 					<form class="auth-form" id="authForm">
 						<div class="field-group hidden" id="nameField"><label for="displayName">Your name</label><input id="displayName" name="name" type="text" autocomplete="name" placeholder="Ada Lovelace"></div>
 						<div class="field-group"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></div>
-						<div class="field-group"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" minlength="6" placeholder="At least 6 characters" required></div>
+						<div class="field-group"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" minlength="8" placeholder="At least 8 characters" required></div>
 						<button class="button button-primary auth-submit" type="submit"><span id="authAction">Sign in</span><span aria-hidden="true">&#8594;</span></button>
 					</form>
-					<p class="auth-feedback" id="authFeedback" role="status" aria-live="polite">This preview stores account details only in this browser. No password is saved.</p>
+					<p class="auth-feedback" id="authFeedback" role="status" aria-live="polite">Your account is secured with a hashed password.</p>
 				</div>
 				<div class="admin-card hidden" id="adminPortal" aria-labelledby="adminTitle">
 					<div class="admin-topline"><span class="admin-status"><span></span> RESTRICTED ACCESS</span><button class="admin-close" id="closeAdmin" type="button" aria-label="Close admin access">&#10005;</button></div>
 					<p class="eyebrow">BYTEWISE / CONTROL ROOM</p>
 					<h2 id="adminTitle">Admin Access</h2>
-					<p class="admin-intro">Authorized administrators only. This interface is a visual preview and is not connected to an authentication service.</p>
+					<p class="admin-intro">Authorized administrators only. Admin access is verified by the Bytewise server.</p>
 					<form class="auth-form admin-form" id="adminForm">
 						<div class="field-group"><label for="adminEmail">Admin email</label><input id="adminEmail" name="adminEmail" type="email" autocomplete="username" placeholder="admin@example.com" required></div>
 						<div class="field-group"><label for="adminKey">Access key</label><input id="adminKey" name="adminKey" type="password" autocomplete="current-password" placeholder="Enter access key" required></div>
 						<button class="button admin-submit" type="submit">Request access <span aria-hidden="true">&#8594;</span></button>
 					</form>
-					<p class="admin-feedback" id="adminFeedback" role="status" aria-live="polite">Admin sign-in requires a server-backed identity provider.</p>
+					<p class="admin-feedback" id="adminFeedback" role="status" aria-live="polite">Admin access is restricted to configured server credentials.</p>
 				</div>
+			</div>
+		</section>
+
+		<section class="leaderboard-page page-view hidden" id="leaderboardView" aria-labelledby="toppersTitle">
+			<div class="leaderboard-wrap">
+				<div class="leaderboard-heading">
+					<div><p class="eyebrow">THE BYTEWISE TOPPERS</p><h1 id="toppersTitle">Learn. Practice. Rise.</h1><p>Students leading the board through consistent practice.</p></div>
+					<button class="refresh-button" id="refreshLeaderboard" type="button" aria-label="Refresh leaderboard" title="Refresh leaderboard"><span aria-hidden="true">&#8635;</span></button>
+				</div>
+				<div class="podium-grid" id="podiumGrid" aria-label="Top three students"></div>
+				<section class="ranking-panel" aria-labelledby="rankingTitle">
+					<div class="ranking-heading"><div><p class="eyebrow">ALL STANDINGS</p><h2 id="rankingTitle">Leaderboard</h2></div><span id="leaderboardUpdated">LIVE RANKINGS</span></div>
+					<div class="ranking-table-wrap"><table class="ranking-table"><thead><tr><th scope="col">Rank</th><th scope="col">Student</th><th scope="col">Rounds cleared</th><th scope="col">Total score</th></tr></thead><tbody id="leaderboardRows"><tr><td colspan="4">Loading rankings...</td></tr></tbody></table></div>
+					<p class="leaderboard-feedback" id="leaderboardFeedback" role="status" aria-live="polite"></p>
+				</section>
 			</div>
 		</section>
 
@@ -197,7 +212,6 @@
 		</div>
 	</footer>
 	<dialog class="legal-dialog" id="legalDialog"><button class="dialog-close" id="closeLegal" type="button" aria-label="Close">&#10005;</button><p class="eyebrow" id="legalEyebrow">BYTEWISE</p><h2 id="legalTitle">Policy</h2><p id="legalCopy"></p></dialog>
-	<script src="questions.js"></script>
 	<script src="script.js"></script>
 </body>
 </html>

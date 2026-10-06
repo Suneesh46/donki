@@ -1,5 +1,6 @@
 const homeView = document.querySelector("#homeView");
 const authView = document.querySelector("#authView");
+const leaderboardView = document.querySelector("#leaderboardView");
 const dashboardView = document.querySelector("#dashboardView");
 const moduleView = document.querySelector("#moduleView");
 const quizView = document.querySelector("#quizView");
@@ -22,10 +23,13 @@ const subjectGrid = document.querySelector("#subjectGrid");
 const answerList = document.querySelector("#answerList");
 const answerNext = document.querySelector("#answerNext");
 
-const views = [homeView, authView, dashboardView, moduleView, quizView, resultView];
+const views = [homeView, authView, leaderboardView, dashboardView, moduleView, quizView, resultView];
+const API_BASE = window.location.protocol === "file:" ? "http://127.0.0.1:5000" : window.location.origin;
 let authMode = "login";
 let logoClicks = [];
 let signedInUser = readStoredUser();
+let subjectCatalog = [];
+let progressBySubject = {};
 let activeSubject = null;
 let activeModule = null;
 let currentRound = 1;
@@ -35,6 +39,7 @@ let score = 0;
 let answerSelected = false;
 
 function readStoredUser() {
+  if (!localStorage.getItem("bytewiseToken")) return null;
   try {
     const user = JSON.parse(localStorage.getItem("bytewiseUser") || "null");
     return user && typeof user.email === "string" ? user : null;
@@ -43,16 +48,42 @@ function readStoredUser() {
   }
 }
 
-function readProgress() {
+async function apiRequest(path, { method = "GET", body, authenticated = true } = {}) {
+  const headers = new Headers();
+  const token = authenticated ? localStorage.getItem("bytewiseToken") : null;
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  if (body !== undefined) headers.set("Content-Type", "application/json");
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    method,
+    headers,
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  let payload = {};
   try {
-    return JSON.parse(localStorage.getItem("bytewiseProgress") || "{}");
+    payload = await response.json();
   } catch {
-    return {};
+    payload = {};
   }
+  if (!response.ok) {
+    if (response.status === 401 && authenticated) clearSession();
+    throw new Error(payload.error || `Request failed (${response.status}).`);
+  }
+  return payload;
 }
 
-function saveProgress(progress) {
-  localStorage.setItem("bytewiseProgress", JSON.stringify(progress));
+function storeSession(session) {
+  localStorage.setItem("bytewiseToken", session.token);
+  localStorage.setItem("bytewiseUser", JSON.stringify(session.user));
+  signedInUser = session.user;
+  updateAccountButton();
+}
+
+function clearSession() {
+  localStorage.removeItem("bytewiseToken");
+  localStorage.removeItem("bytewiseUser");
+  signedInUser = null;
+  updateAccountButton();
 }
 
 function showStandardAuth() {
@@ -60,13 +91,26 @@ function showStandardAuth() {
   adminPortal.classList.add("hidden");
 }
 
-function getModuleProgress(subjectId, moduleId) {
-  return readProgress()[subjectId]?.[moduleId] || { completedRound: 0, bestScore: 0, xp: 0 };
+function getModuleProgress(subject, moduleId) {
+  const moduleType = moduleId === "theory" ? "Theory" : "Lab";
+  return progressBySubject[subject.subject]?.[moduleType] || {
+    completed_round: 0,
+    rounds_completed: 0,
+    best_score: 0,
+    xp: 0,
+  };
 }
 
 function showView(view) {
   views.forEach((item) => item.classList.add("hidden"));
   view.classList.remove("hidden");
+  document.querySelectorAll(".main-nav .nav-link").forEach((link) => {
+    link.classList.toggle(
+      "active",
+      (view === homeView && link.hasAttribute("data-home-link")) ||
+        (view === leaderboardView && link.hasAttribute("data-toppers-link")),
+    );
+  });
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -81,9 +125,14 @@ function showAuth(mode = "login") {
   setAuthMode(mode);
 }
 
-function showDashboard() {
-  renderDashboard();
+async function showDashboard() {
   showView(dashboardView);
+  await renderDashboard();
+}
+
+async function showLeaderboard() {
+  showView(leaderboardView);
+  await renderLeaderboard();
 }
 
 function showModuleSelection() {
@@ -92,13 +141,14 @@ function showModuleSelection() {
   document.querySelector("#moduleDescription").textContent = `Build understanding, then put it to work in ${activeSubject.title}.`;
   ["theory", "lab"].forEach((moduleId) => {
     const card = document.querySelector(`[data-module="${moduleId}"]`);
-    const progress = getModuleProgress(activeSubject.id, moduleId);
-    const count = activeSubject[moduleId].length;
+    const progress = getModuleProgress(activeSubject, moduleId);
+    const moduleType = moduleId === "theory" ? "Theory" : "Lab";
+    const count = activeSubject.question_counts[moduleType];
     const label = moduleId === "theory" ? "Theory Concepts" : "Lab Programs";
-    card.querySelector(".module-card-copy small").textContent = `${count} unique questions · ${progress.completedRound}/5 rounds cleared`;
-    card.setAttribute("aria-label", `${label}, ${count} questions, ${progress.completedRound} of 5 rounds cleared`);
+    card.querySelector(".module-card-copy small").textContent = `${count} questions · ${progress.completed_round}/5 rounds cleared`;
+    card.setAttribute("aria-label", `${label}, ${count} questions, ${progress.completed_round} of 5 rounds cleared`);
   });
-  document.querySelector("#bankNote").textContent = "Each module currently has 25 unique questions. Rounds contain 10 questions; later rounds may revisit earlier questions until the bank is expanded.";
+  document.querySelector("#bankNote").textContent = "The current source bank contains 25 unique questions per module; the seed script cycles them across five 10-question rounds.";
   showView(moduleView);
 }
 
@@ -116,31 +166,45 @@ function setAuthMode(mode) {
   authEyebrow.textContent = isRegister ? "YOUR NEXT CHAPTER" : "WELCOME BACK";
   authTitle.textContent = isRegister ? "Create room to grow." : "Pick up where you left off.";
   authAction.textContent = isRegister ? "Create account" : "Sign in";
-  authFeedback.textContent = "This preview stores account details only in this browser. No password is saved.";
+  authFeedback.textContent = "Your password is sent securely to the Bytewise API and stored as a hash.";
 }
 
 function updateAccountButton() {
   accountButton.replaceChildren();
   accountButton.append(document.createTextNode(signedInUser ? signedInUser.name || "Profile" : "Sign in"));
+  accountButton.setAttribute("aria-label", signedInUser ? `Sign out ${signedInUser.name || "account"}` : "Sign in");
   const arrow = document.createElement("span");
   arrow.setAttribute("aria-hidden", "true");
   arrow.textContent = "↗";
   accountButton.append(arrow);
 }
 
-function renderDashboard() {
-  const progress = readProgress();
+async function renderDashboard() {
+  const dashboardFootnote = document.querySelector(".dashboard-footnote");
+  dashboardFootnote.textContent = "Loading your subjects and progress...";
+  try {
+    const [subjectsResponse, progressResponse] = await Promise.all([
+      apiRequest("/api/subjects", { authenticated: false }),
+      apiRequest("/api/progress"),
+    ]);
+    subjectCatalog = subjectsResponse.subjects;
+    progressBySubject = progressResponse.progress;
+  } catch (error) {
+    dashboardFootnote.textContent = error.message;
+    return;
+  }
+
   let roundsCleared = 0;
   let totalXpValue = 0;
 
   subjectGrid.replaceChildren();
-  window.subjectCatalog.forEach((subject) => {
-    const theoryProgress = progress[subject.id]?.theory || { completedRound: 0 };
-    const labProgress = progress[subject.id]?.lab || { completedRound: 0 };
-    const completedRounds = Math.min(5, theoryProgress.completedRound || 0) + Math.min(5, labProgress.completedRound || 0);
+  subjectCatalog.forEach((subject) => {
+    const theoryProgress = progressBySubject[subject.subject]?.Theory || { rounds_completed: 0, xp: 0 };
+    const labProgress = progressBySubject[subject.subject]?.Lab || { rounds_completed: 0, xp: 0 };
+    const completedRounds = Math.min(5, theoryProgress.rounds_completed || 0) + Math.min(5, labProgress.rounds_completed || 0);
     const percent = Math.round((completedRounds / 10) * 100);
     roundsCleared += completedRounds;
-    totalXpValue += (progress[subject.id]?.theory?.xp || 0) + (progress[subject.id]?.lab?.xp || 0);
+    totalXpValue += (theoryProgress.xp || 0) + (labProgress.xp || 0);
 
     const card = document.createElement("button");
     card.type = "button";
@@ -160,10 +224,70 @@ function renderDashboard() {
 
   document.querySelector("#roundsComplete").textContent = roundsCleared;
   document.querySelector("#totalXp").textContent = totalXpValue;
-  document.querySelector("#subjectCount").textContent = `${String(window.subjectCatalog.length).padStart(2, "0")} SUBJECTS`;
+  document.querySelector("#subjectCount").textContent = `${String(subjectCatalog.length).padStart(2, "0")} SUBJECTS`;
   document.querySelector("#dashboardGreeting").textContent = signedInUser?.name
     ? `Good to see you, ${signedInUser.name}. A little practice goes a long way.`
     : "A little practice goes a long way.";
+  dashboardFootnote.innerHTML = '<span aria-hidden="true">&#9670;</span> Choose a subject to pick up where you left off.';
+}
+
+async function renderLeaderboard(silent = false) {
+  const podium = document.querySelector("#podiumGrid");
+  const rows = document.querySelector("#leaderboardRows");
+  const feedback = document.querySelector("#leaderboardFeedback");
+  feedback.textContent = "";
+
+  try {
+    const response = await apiRequest("/api/leaderboard", { authenticated: false });
+    const rankings = response.leaderboard;
+    podium.replaceChildren();
+    rows.replaceChildren();
+
+    const podiumEntries = [
+      { student: rankings[1], rank: 2 },
+      { student: rankings[0], rank: 1 },
+      { student: rankings[2], rank: 3 },
+    ].filter((entry) => entry.student);
+
+    podiumEntries.forEach(({ student, rank }) => {
+      const card = document.createElement("article");
+      card.className = `podium-card rank-${rank}`;
+      card.innerHTML = '<span class="podium-medal"></span><strong class="podium-name"></strong><span class="podium-rounds"></span><span class="podium-score"></span><span class="podium-place"></span>';
+      card.querySelector(".podium-medal").textContent = String(rank);
+      card.querySelector(".podium-name").textContent = student.name;
+      card.querySelector(".podium-rounds").textContent = `${student.rounds_completed} rounds cleared`;
+      card.querySelector(".podium-score").textContent = `${student.total_score} / ${student.rounds_completed * 10}`;
+      card.querySelector(".podium-place").textContent = rank === 1 ? "TOPPER" : rank === 2 ? "RUNNER-UP" : "THIRD PLACE";
+      podium.append(card);
+    });
+
+    if (rankings.length === 0) {
+      podium.innerHTML = '<p class="podium-empty">No scores yet. Complete a round to claim the first spot.</p>';
+      const emptyRow = document.createElement("tr");
+      emptyRow.className = "empty-row";
+      emptyRow.innerHTML = '<td colspan="4">No completed rounds yet. Your first result will appear here.</td>';
+      rows.append(emptyRow);
+    } else {
+      rankings.forEach((student) => {
+        const row = document.createElement("tr");
+        const values = [
+          `#${student.rank}`,
+          student.name,
+          student.rounds_completed,
+          `${student.total_score} / ${student.rounds_completed * 10}`,
+        ];
+        values.forEach((value) => {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.append(cell);
+        });
+        rows.append(row);
+      });
+    }
+    document.querySelector("#leaderboardUpdated").textContent = `UPDATED ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+  } catch (error) {
+    if (!silent) feedback.textContent = error.message;
+  }
 }
 
 function shuffle(items) {
@@ -175,22 +299,40 @@ function shuffle(items) {
   return shuffled;
 }
 
-function beginModule(moduleId) {
-  const questions = activeSubject?.[moduleId];
-  if (!questions?.length) return;
-  activeModule = { id: moduleId, title: moduleId === "theory" ? "Theory Concepts" : "Lab Programs", questions };
-  const completedRound = getModuleProgress(activeSubject.id, moduleId).completedRound;
-  currentRound = completedRound >= 5 ? 1 : completedRound + 1;
-  startRound();
+async function beginModule(moduleId) {
+  if (!activeSubject || !["theory", "lab"].includes(moduleId)) return;
+  const moduleType = moduleId === "theory" ? "Theory" : "Lab";
+  const progress = getModuleProgress(activeSubject, moduleId);
+  activeModule = {
+    id: moduleId,
+    type: moduleType,
+    title: moduleId === "theory" ? "Theory Concepts" : "Lab Programs",
+  };
+  currentRound = progress.completed_round >= 5 ? 1 : progress.completed_round + 1;
+  await startRound(currentRound);
 }
 
-function startRound() {
-  currentQuestions = shuffle(activeModule.questions).slice(0, 10);
-  currentRound = Math.min(Math.max(currentRound, 1), 5);
-  questionIndex = 0;
-  score = 0;
-  showView(quizView);
-  renderQuestion();
+async function startRound(roundNumber = currentRound) {
+  currentRound = Math.min(Math.max(roundNumber, 1), 5);
+  try {
+    const query = new URLSearchParams({
+      subject: activeSubject.subject,
+      type: activeModule.type,
+      round: String(currentRound),
+    });
+    const response = await apiRequest(`/api/questions?${query}`, { authenticated: false });
+    if (!Array.isArray(response.questions) || response.questions.length !== 10) {
+      throw new Error("The selected round is not ready. Ask an administrator to seed 10 questions.");
+    }
+    currentQuestions = shuffle(response.questions);
+    questionIndex = 0;
+    score = 0;
+    showView(quizView);
+    renderQuestion();
+  } catch (error) {
+    document.querySelector("#bankNote").textContent = error.message;
+    showView(moduleView);
+  }
 }
 
 function renderRoundProgress(answeredCount = questionIndex) {
@@ -256,21 +398,32 @@ function selectAnswer(button, selectedIndex, question) {
   renderRoundProgress(questionIndex + 1);
 }
 
-function finishRound() {
-  const progress = readProgress();
-  const subjectProgress = progress[activeSubject.id] || {};
-  const moduleProgress = subjectProgress[activeModule.id] || { completedRound: 0, bestScore: 0, xp: 0 };
-  const earnedXp = score * 10;
-  moduleProgress.completedRound = Math.max(moduleProgress.completedRound, currentRound);
-  moduleProgress.bestScore = Math.max(moduleProgress.bestScore, score);
-  moduleProgress.xp += earnedXp;
-  subjectProgress[activeModule.id] = moduleProgress;
-  progress[activeSubject.id] = subjectProgress;
-  saveProgress(progress);
+async function finishRound() {
+  let savedScore;
+  try {
+    savedScore = await apiRequest("/api/submit-score", {
+      method: "POST",
+      body: {
+        subject: activeSubject.subject,
+        module_type: activeModule.type,
+        round_number: currentRound,
+        score,
+      },
+    });
+  } catch (error) {
+    const feedback = document.querySelector("#answerFeedback");
+    feedback.className = "answer-feedback is-wrong";
+    feedback.textContent = `Could not save this round: ${error.message}`;
+    answerNext.disabled = false;
+    document.querySelector("#answerNextLabel").textContent = "Retry saving score";
+    return;
+  }
 
   document.querySelector("#resultScore").textContent = score;
   document.querySelector("#resultContext").textContent = `${activeSubject.title.toUpperCase()} / ${activeModule.title.toUpperCase()} / ROUND ${currentRound}`;
-  document.querySelector("#resultXp").textContent = `+${earnedXp} XP earned`;
+  document.querySelector("#resultXp").textContent = savedScore.xp_awarded
+    ? `+${savedScore.xp_awarded} XP earned`
+    : "Round saved · best score retained";
   if (score === 10) {
     document.querySelector("#resultTitle").textContent = "Flawless!";
     document.querySelector("#resultMessage").textContent = "Every answer landed. Your understanding is in excellent shape.";
@@ -285,9 +438,14 @@ function finishRound() {
     document.querySelector("#resultMessage").textContent = "Every missed question is useful feedback. Review, reset, and try again.";
   }
 
-  const nextRoundButton = document.querySelector("#nextRound");
   document.querySelector("#nextRoundLabel").textContent = currentRound === 5 ? "Return to module" : "Start next round";
   showView(resultView);
+  try {
+    progressBySubject = (await apiRequest("/api/progress")).progress;
+  } catch {
+    progressBySubject = {};
+  }
+  await renderLeaderboard(true);
 }
 
 function updateAccountFromStorage() {
@@ -315,6 +473,7 @@ document.querySelectorAll("[data-home-link]").forEach((link) => {
 
 document.querySelectorAll(".main-nav a").forEach((link) => {
   link.addEventListener("click", (event) => {
+    if (link.hasAttribute("data-toppers-link")) return;
     if (homeView.classList.contains("hidden")) {
       event.preventDefault();
       showHome();
@@ -325,31 +484,39 @@ document.querySelectorAll(".main-nav a").forEach((link) => {
 
 accountButton.addEventListener("click", () => {
   if (!signedInUser) return showAuth("login");
-  signedInUser = null;
-  localStorage.removeItem("bytewiseUser");
-  updateAccountButton();
+  clearSession();
   showHome();
 });
 
-authForm.addEventListener("submit", (event) => {
+authForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (authMode === "register") {
-    signedInUser = { name: displayName.value.trim(), email: emailInput.value.trim() };
-    localStorage.setItem("bytewiseUser", JSON.stringify(signedInUser));
-    updateAccountButton();
-    showDashboard();
-    return;
+  authAction.textContent = "Connecting...";
+  try {
+    const isRegister = authMode === "register";
+    const session = await apiRequest(isRegister ? "/api/register" : "/api/login", {
+      method: "POST",
+      authenticated: false,
+      body: {
+        name: displayName.value.trim(),
+        email: emailInput.value.trim(),
+        password: passwordInput.value,
+      },
+    });
+    storeSession(session);
+    authForm.reset();
+    await showDashboard();
+  } catch (error) {
+    authFeedback.textContent = error.message;
+  } finally {
+    authAction.textContent = authMode === "register" ? "Create account" : "Sign in";
   }
-
-  const savedUser = readStoredUser();
-  if (savedUser && savedUser.email.toLowerCase() === emailInput.value.trim().toLowerCase()) {
-    signedInUser = savedUser;
-    updateAccountButton();
-    showDashboard();
-    return;
-  }
-  authFeedback.textContent = "This front-end preview has no account service. Create a local demo account to continue.";
 });
+
+document.querySelector("[data-toppers-link]").addEventListener("click", (event) => {
+  event.preventDefault();
+  showLeaderboard();
+});
+document.querySelector("#refreshLeaderboard").addEventListener("click", () => renderLeaderboard());
 
 document.querySelector("#brandButton").addEventListener("click", () => {
   const now = Date.now();
@@ -372,9 +539,25 @@ document.querySelector("#closeAdmin").addEventListener("click", () => {
   adminPortal.classList.add("hidden");
 });
 
-adminForm.addEventListener("submit", (event) => {
+adminForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  document.querySelector("#adminFeedback").textContent = "Admin sign-in requires a server-backed identity provider. No credentials were sent or stored.";
+  const feedback = document.querySelector("#adminFeedback");
+  feedback.textContent = "Verifying access...";
+  try {
+    const session = await apiRequest("/api/admin/login", {
+      method: "POST",
+      authenticated: false,
+      body: {
+        email: document.querySelector("#adminEmail").value.trim(),
+        password: document.querySelector("#adminKey").value,
+      },
+    });
+    storeSession(session);
+    adminForm.reset();
+    feedback.textContent = "Admin access verified. Your signed session is active.";
+  } catch (error) {
+    feedback.textContent = error.message;
+  }
 });
 
 document.querySelector("#accountButton").addEventListener("focus", updateAccountFromStorage);
@@ -384,10 +567,12 @@ document.querySelectorAll("[data-module]").forEach((button) => {
   button.addEventListener("click", () => beginModule(button.dataset.module));
 });
 
-answerNext.addEventListener("click", () => {
+answerNext.addEventListener("click", async () => {
   if (!answerSelected) return;
   if (questionIndex === 9) {
-    finishRound();
+    answerNext.disabled = true;
+    document.querySelector("#answerNextLabel").textContent = "Saving score...";
+    await finishRound();
     return;
   }
   questionIndex += 1;
@@ -405,8 +590,8 @@ document.querySelector("#nextRound").addEventListener("click", () => {
 document.querySelector("#returnDashboard").addEventListener("click", showDashboard);
 
 const legalCopy = {
-  privacy: "Bytewise is a front-end preview. This version stores only a demo display name, email, and learning progress in your browser's local storage. It does not send personal information to a server.",
-  terms: "Use this preview for learning and evaluation. Account access, progress tracking, and leaderboard features are not yet backed by a production service."
+  privacy: "Bytewise stores account credentials as password hashes and saves quiz results in its SQLite database. Your signed session token is kept in this browser and can be cleared by signing out.",
+  terms: "Use Bytewise for learning and exam preparation. Do not share your account credentials. Scores and leaderboard rankings are based on submitted round results."
 };
 
 document.querySelectorAll("[data-legal]").forEach((button) => {
