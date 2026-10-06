@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="theme-color" content="#f5f7f3">
+	<meta name="description" content="Build computer science confidence one focused challenge at a time with Bytewise.">
+	<title>Bytewise | Learn sharp. Play smart.</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<header class="site-header">
+		<div class="header-inner">
+			<button class="brand-button" id="brandButton" type="button" aria-label="Bytewise home">
+				<span class="brand-mark" aria-hidden="true">B<span>/</span>W</span>
+				<span class="brand-name">bytewise</span>
+			</button>
+			<nav class="main-nav" aria-label="Main navigation">
+				<a class="nav-link active" href="#home" data-home-link>Home</a>
+				<a class="nav-link" href="#about">About</a>
+				<a class="nav-link" href="#contact">Contact</a>
+				<a class="nav-link" href="#leaderboard">Leaderboard</a>
+			</nav>
+			<button class="account-button" id="accountButton" type="button">Sign in <span aria-hidden="true">&#8599;</span></button>
+		</div>
+	</header>
+
+	<main>
+		<div class="page-view" id="homeView">
+			<section class="hero section-wrap" id="home" aria-labelledby="heroTitle">
+				<div class="hero-copy">
+					<p class="eyebrow"><span class="eyebrow-dot"></span> YOUR NEXT LEVEL STARTS HERE</p>
+					<h1 id="heroTitle">Make your<br>knowledge <em>unstoppable.</em></h1>
+					<p class="hero-description">Turn exam prep into a daily win. Sharpen your computer science skills with focused rounds, clear progress, and a little friendly competition.</p>
+					<div class="hero-actions">
+						<button class="button button-primary" type="button" data-open-auth="register">Enter the arena <span aria-hidden="true">&#8594;</span></button>
+						<a class="text-link" href="#about">See how it works <span aria-hidden="true">&#8595;</span></a>
+					</div>
+					<div class="hero-proof"><span class="proof-mark" aria-hidden="true">&#10003;</span><span>Short rounds. Real progress. No guesswork.</span></div>
+				</div>
+			<div class="hero-art" aria-label="Illustration of a learning streak and quiz progress">
+				<div class="art-grid" aria-hidden="true"></div>
+				<div class="orbit orbit-one" aria-hidden="true"></div>
+				<div class="orbit orbit-two" aria-hidden="true"></div>
+				<div class="streak-card">
+					<div class="streak-top"><span class="streak-label">YOUR STREAK</span><span class="flame" aria-hidden="true">&#9670;</span></div>
+					<div class="streak-number">07<span> days</span></div>
+					<div class="streak-days" aria-label="Seven day activity streak">
+						<span class="streak-day done">M</span><span class="streak-day done">T</span><span class="streak-day done">W</span><span class="streak-day done">T</span><span class="streak-day done">F</span><span class="streak-day done">S</span><span class="streak-day today">S</span>
+					</div>
+					<div class="streak-caption"><span class="live-dot"></span> One round keeps it going</div>
+				</div>
+				<div class="score-chip"><span class="score-chip-icon" aria-hidden="true">&#9733;</span><span><strong>+120 XP</strong><small>personal best</small></span></div>
+				<div class="art-caption">Small wins<br>compound.</div>
+			</div>
+			<div class="hero-index" aria-hidden="true"><span>01</span><i></i><span>04</span></div>
+		</section>
+
+			<section class="feature-strip" aria-label="Platform highlights">
+				<div class="feature-strip-inner">
+					<p><span class="feature-number">01</span> Learn in focused rounds</p>
+					<p><span class="feature-number">02</span> Track every improvement</p>
+					<p><span class="feature-number">03</span> Compete at your pace</p>
+				</div>
+			</section>
+
+			<section class="content-section section-wrap" id="about">
+				<div class="section-heading">
+					<p class="eyebrow">ABOUT THE PLATFORM</p>
+					<h2>Study that feels<br>like forward motion.</h2>
+				</div>
+				<div class="about-copy">
+					<p>Bytewise makes exam preparation more active and less overwhelming. Practice concepts in short, structured sessions, see where you are improving, and build the confidence to take on your next assessment.</p>
+					<div class="about-points">
+						<div><span class="point-icon teal-icon" aria-hidden="true">&#10003;</span><span><strong>Focused practice</strong><small>Clear challenges built around core subjects.</small></span></div>
+						<div><span class="point-icon coral-icon" aria-hidden="true">&#8599;</span><span><strong>Visible progress</strong><small>Keep your momentum measurable and rewarding.</small></span></div>
+					</div>
+				</div>
+			</section>
+
+			<section class="community-section" id="leaderboard">
+				<div class="community-inner section-wrap">
+					<div><p class="eyebrow">THE COMMUNITY</p><h2>Every expert<br>starts somewhere.</h2></div>
+					<div class="community-note"><span class="community-star" aria-hidden="true">&#9733;</span><p>Your learning journey is yours to shape. Sign in to start building a streak and take your place on the leaderboard.</p><button class="inline-button" type="button" data-open-auth="register">Start learning <span aria-hidden="true">&#8594;</span></button></div>
+				</div>
+			</section>
+
+			<section class="contact-section section-wrap" id="contact">
+				<div><p class="eyebrow">CONTACT</p><h2>We’re here to help.</h2></div>
+				<div class="contact-copy"><p>Questions, feedback, or a topic you’d love to see? Our team is happy to hear from you.</p><a href="mailto:support@bytewise.example">support@bytewise.example <span aria-hidden="true">&#8599;</span></a><small>We typically reply within two business days.</small></div>
+			</section>
+		</div>
+
+		<section class="auth-page page-view hidden" id="authView" aria-labelledby="authTitle">
+			<div class="auth-layout">
+				<div class="auth-aside">
+					<p class="eyebrow">A BETTER KIND OF STUDY SESSION</p>
+					<h1>Show up.<br>Level up.</h1>
+					<p>Build your skills one satisfying round at a time.</p>
+					<div class="auth-aside-stamp" aria-hidden="true">B<span>/</span>W</div>
+				</div>
+				<div class="auth-card" id="standardAuth">
+					<div class="auth-tabs" role="tablist" aria-label="Authentication mode">
+						<button class="auth-tab active" id="loginTab" type="button" role="tab" aria-selected="true" data-mode="login">Sign in</button>
+						<button class="auth-tab" id="registerTab" type="button" role="tab" aria-selected="false" data-mode="register">Create account</button>
+					</div>
+					<p class="eyebrow auth-eyebrow" id="authEyebrow">WELCOME BACK</p>
+					<h2 id="authTitle">Pick up where you left off.</h2>
+					<form class="auth-form" id="authForm">
+						<div class="field-group hidden" id="nameField"><label for="displayName">Your name</label><input id="displayName" name="name" type="text" autocomplete="name" placeholder="Ada Lovelace"></div>
+						<div class="field-group"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></div>
+						<div class="field-group"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" minlength="6" placeholder="At least 6 characters" required></div>
+						<button class="button button-primary auth-submit" type="submit"><span id="authAction">Sign in</span><span aria-hidden="true">&#8594;</span></button>
+					</form>
+					<p class="auth-feedback" id="authFeedback" role="status" aria-live="polite">This preview stores account details only in this browser. No password is saved.</p>
+				</div>
+				<div class="admin-card hidden" id="adminPortal" aria-labelledby="adminTitle">
+					<div class="admin-topline"><span class="admin-status"><span></span> RESTRICTED ACCESS</span><button class="admin-close" id="closeAdmin" type="button" aria-label="Close admin access">&#10005;</button></div>
+					<p class="eyebrow">BYTEWISE / CONTROL ROOM</p>
+					<h2 id="adminTitle">Admin Access</h2>
+					<p class="admin-intro">Authorized administrators only. This interface is a visual preview and is not connected to an authentication service.</p>
+					<form class="auth-form admin-form" id="adminForm">
+						<div class="field-group"><label for="adminEmail">Admin email</label><input id="adminEmail" name="adminEmail" type="email" autocomplete="username" placeholder="admin@example.com" required></div>
+						<div class="field-group"><label for="adminKey">Access key</label><input id="adminKey" name="adminKey" type="password" autocomplete="current-password" placeholder="Enter access key" required></div>
+						<button class="button admin-submit" type="submit">Request access <span aria-hidden="true">&#8594;</span></button>
+					</form>
+					<p class="admin-feedback" id="adminFeedback" role="status" aria-live="polite">Admin sign-in requires a server-backed identity provider.</p>
+				</div>
+			</div>
+		</section>
+
+		<section class="dashboard-page page-view hidden" id="dashboardView" aria-labelledby="dashboardTitle">
+			<div class="dashboard-wrap">
+				<div class="dashboard-heading">
+					<div><p class="eyebrow">YOUR LEARNING SPACE</p><h1 id="dashboardTitle">Choose your next challenge.</h1><p class="dashboard-subtitle" id="dashboardGreeting">A little practice goes a long way.</p></div>
+					<div class="dashboard-stats" aria-label="Learning statistics"><div><span class="stat-value" id="roundsComplete">0</span><span class="stat-label">ROUNDS CLEARED</span></div><i></i><div><span class="stat-value" id="totalXp">0</span><span class="stat-label">TOTAL XP</span></div></div>
+				</div>
+				<div class="subject-section-heading"><h2>Your subjects</h2><span id="subjectCount">07 SUBJECTS</span></div>
+				<div class="subject-grid" id="subjectGrid" aria-label="Available subjects"></div>
+				<p class="dashboard-footnote"><span aria-hidden="true">&#9670;</span> Choose a subject to pick up where you left off.</p>
+			</div>
+		</section>
+
+		<section class="module-page page-view hidden" id="moduleView" aria-labelledby="moduleTitle">
+			<div class="module-wrap">
+				<button class="back-button" id="backToDashboard" type="button"><span aria-hidden="true">&#8592;</span> All subjects</button>
+				<div class="module-heading"><p class="eyebrow" id="moduleEyebrow">SUBJECT PATHS</p><h1 id="moduleTitle">Choose how to practice.</h1><p id="moduleDescription">Build understanding, then put it to work.</p></div>
+				<div class="module-grid">
+					<button class="module-card theory-card" type="button" data-module="theory">
+						<span class="module-icon theory-icon" aria-hidden="true"><span>&#9776;</span></span><span class="module-card-copy"><span class="module-kind">CONCEPTS & PRINCIPLES</span><strong>Theory Concepts</strong><small>Build a clear mental model of the subject.</small></span><span class="module-card-arrow" aria-hidden="true">&#8594;</span>
+					</button>
+					<button class="module-card lab-card" type="button" data-module="lab">
+						<span class="module-icon lab-icon" aria-hidden="true">&gt;_</span><span class="module-card-copy"><span class="module-kind">TOOLS & APPLICATION</span><strong>Lab Programs</strong><small>Practice commands, code, and real workflows.</small></span><span class="module-card-arrow" aria-hidden="true">&#8594;</span>
+					</button>
+				</div>
+				<p class="bank-note" id="bankNote"></p>
+			</div>
+		</section>
+
+		<section class="quiz-page page-view hidden" id="quizView" aria-labelledby="quizQuestion">
+			<div class="quiz-wrap">
+				<div class="quiz-nav"><button class="back-button" id="quitRound" type="button"><span aria-hidden="true">&#8592;</span> Exit round</button><span class="quiz-subject" id="quizSubject"></span></div>
+				<div class="round-heading"><div><p class="eyebrow">YOUR PRACTICE RUN</p><h1 id="roundLabel">Round 1 <span>/ 5</span></h1></div><span class="module-pill" id="quizModule"></span></div>
+				<div class="round-progress" aria-label="Round progress"><div class="round-progress-meta"><span>QUESTION <strong id="questionPosition">01</strong> / 10</span><span id="roundPercent">10%</span></div><div class="round-progress-track"><div class="round-progress-bar" id="roundProgressBar"></div></div><div class="round-dots" id="roundDots" aria-label="Five rounds"></div></div>
+				<article class="question-panel">
+					<div class="question-meta"><span id="questionCategory">THEORY</span><span>SELECT ONE ANSWER</span></div>
+					<h2 id="quizQuestion">Question text</h2>
+					<div class="answer-list" id="answerList" role="group" aria-label="Answer choices"></div>
+					<p class="answer-feedback" id="answerFeedback" role="status" aria-live="polite"></p>
+					<button class="button button-primary answer-next" id="answerNext" type="button" disabled><span id="answerNextLabel">Choose an answer</span><span aria-hidden="true">&#8594;</span></button>
+				</article>
+			</div>
+		</section>
+
+		<section class="result-page page-view hidden" id="resultView" aria-labelledby="resultTitle">
+			<div class="result-wrap">
+				<p class="eyebrow">ROUND COMPLETE</p>
+				<div class="result-medal" aria-hidden="true"><span>&#9733;</span></div>
+				<p class="result-context" id="resultContext">SUBJECT / MODULE / ROUND</p>
+				<div class="result-score"><span id="resultScore">0</span><small>/ 10</small></div>
+				<h1 id="resultTitle">Good first pass.</h1>
+				<p class="result-message" id="resultMessage"></p>
+				<div class="result-xp" id="resultXp">+0 XP earned</div>
+				<div class="result-actions"><button class="button button-primary" id="nextRound" type="button"><span id="nextRoundLabel">Start next round</span><span aria-hidden="true">&#8594;</span></button><button class="result-secondary" id="returnDashboard" type="button">Return to dashboard</button></div>
+			</div>
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<div class="footer-inner">
+			<a class="footer-brand" href="#home" data-home-link><span class="brand-mark" aria-hidden="true">B<span>/</span>W</span><span>BYTEWISE</span></a>
+			<p class="copyright">&copy; <span id="currentYear"></span> Bytewise. Learn something good.</p>
+			<div class="footer-links"><button type="button" data-legal="privacy">Privacy policy</button><button type="button" data-legal="terms">Terms of service</button><a href="https://github.com/" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">&#8599;</span></a><a href="https://www.linkedin.com/" target="_blank" rel="noreferrer">LinkedIn <span aria-hidden="true">&#8599;</span></a></div>
+		</div>
+	</footer>
+	<dialog class="legal-dialog" id="legalDialog"><button class="dialog-close" id="closeLegal" type="button" aria-label="Close">&#10005;</button><p class="eyebrow" id="legalEyebrow">BYTEWISE</p><h2 id="legalTitle">Policy</h2><p id="legalCopy"></p></dialog>
+	<script src="questions.js"></script>
+	<script src="script.js"></script>
+</body>
+</html>
